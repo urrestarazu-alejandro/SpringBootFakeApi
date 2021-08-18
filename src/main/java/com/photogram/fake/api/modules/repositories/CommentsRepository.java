@@ -2,6 +2,9 @@ package com.photogram.fake.api.modules.repositories;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.photogram.fake.api.modules.entities.domain.Comment;
 import com.photogram.fake.api.modules.entities.domain.User;
 import com.photogram.fake.api.modules.exceptions.RepositoryException;
@@ -25,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Repository
 @AllArgsConstructor
+@DefaultProperties(defaultFallback = "fallback")
 public class CommentsRepository {
     @Autowired
     private RestTemplate restTemplate;
@@ -39,6 +43,10 @@ public class CommentsRepository {
      * @return list of comments of a posts
      * @throws RepositoryException a repository exception
      */
+    @HystrixCommand(commandProperties = {
+            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",
+                    value = "1000")
+    })
     public List<Comment> get(long postId) throws RepositoryException {
         try {
             String url = String.format("https://jsonplaceholder.typicode.com/posts/%d/comments", postId);
@@ -61,6 +69,7 @@ public class CommentsRepository {
      * @user a user
      * @throws RepositoryException a repository exception
      */
+    @HystrixCommand
     public Comment create(long postId, String comment, User user) throws RepositoryException {
         try {
             String url = "https://jsonplaceholder.typicode.com/comments";
@@ -91,6 +100,7 @@ public class CommentsRepository {
      * @return the updated comment
      * @throws RepositoryException a repository exception
      */
+    @HystrixCommand
     public Comment update(Comment comment) throws RepositoryException {
         try {
             String url = String.format("https://jsonplaceholder.typicode.com/comments/%d", comment.getId());
@@ -113,6 +123,7 @@ public class CommentsRepository {
      * @param commentId comment id to delete
      * @throws RepositoryException
      */
+    @HystrixCommand
     public void delete(long commentId) throws RepositoryException {
         try {
             String url = String.format("https://jsonplaceholder.typicode.com/comments/%d", commentId);
@@ -121,5 +132,9 @@ public class CommentsRepository {
         } catch (Exception exc) {
             throw new RepositoryException("couldn't delete the comment", exc);
         }
+    }
+
+    private void fallback() {
+        throw new RepositoryException("https://jsonplaceholder.typicode.com/comments is too busy!", null);
     }
 }

@@ -17,6 +17,8 @@ comments.
 * Clean architecture (https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 * swagger: https://swagger.io/tools/swagger-ui/
 * jackson: https://github.com/FasterXML/jackson-dataformat-xml
+* Docker: https://hub.docker.com/
+* hystrix-javanica: https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica
 
 ## Usage
 

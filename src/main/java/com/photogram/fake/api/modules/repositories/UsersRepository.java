@@ -2,6 +2,8 @@ package com.photogram.fake.api.modules.repositories;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.photogram.fake.api.modules.entities.domain.Post;
 import com.photogram.fake.api.modules.entities.domain.User;
 import com.photogram.fake.api.modules.exceptions.RepositoryException;
@@ -19,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Repository
 @AllArgsConstructor
+@DefaultProperties(defaultFallback = "fallback")
 public class UsersRepository {
     @Autowired
     private RestTemplate restTemplate;
@@ -32,9 +35,12 @@ public class UsersRepository {
      * @return a user
      * @throws RepositoryException a Repository Exception
      */
+    @HystrixCommand
     public User get(long userId) throws RepositoryException {
         try {
             String url = String.format("https://jsonplaceholder.typicode.com/users/%d", userId);
+
+            Thread.sleep(4000);
 
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
@@ -51,6 +57,7 @@ public class UsersRepository {
      * @return list of publications
      * @throws RepositoryException a Repository Exception
      */
+    @HystrixCommand
     public List<Post> getPosts(long userId) throws RepositoryException {
         try {
             String url = String.format("https://jsonplaceholder.typicode.com/users/%d/posts", userId);
@@ -64,5 +71,9 @@ public class UsersRepository {
         } catch (Exception exc) {
             throw new RepositoryException("couldn't get user's posts", exc);
         }
+    }
+
+    private void fallback() {
+        throw new RepositoryException("https://jsonplaceholder.typicode.com/users is too busy!", null);
     }
 }

@@ -30,6 +30,8 @@ dependencies {
     implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.5.10'
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-xml
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.12.4'
+    // https://mvnrepository.com/artifact/com.netflix.hystrix/hystrix-javanica
+    implementation group: 'com.netflix.hystrix', name: 'hystrix-javanica', version: '1.5.18'
 }
 
 test {
